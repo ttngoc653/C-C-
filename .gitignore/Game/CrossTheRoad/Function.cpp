@@ -2,6 +2,10 @@
 
 PointPeoplePre *headPeoplePre;
 
+PointPeoplePre *getHeadPeoplePre() {
+	return headPeoplePre;
+}
+
 // khi người về đích hàm này sẽ được gọi để thêm vào dữ liệu
 bool addPeopleFinish(int _x) {
 	PointPeoplePre *p = (PointPeoplePre *)malloc(sizeof(PointPeoplePre));
@@ -47,14 +51,32 @@ int countPeopleFinished(PointPeoplePre *p = headPeoplePre) {
 	return countPeopleFinished(p->next) + 1;
 }
 
-bool writeHistoryToFile(FILE * f)
+bool writeHistoryToFile(FILE *f)
 {
-	fprintf(f, "%d ", countPeopleFinished());
+	fprintf(f, "%d\n", countPeopleFinished());
 
 	for (PointPeoplePre *p = headPeoplePre; p != NULL; p = p->next)
 	{
 		fprintf(f, "%d ", p->x);
 	}
 
+	return true;
+}
+
+bool readHistoryFromFile(FILE *f) {
+	destroyHistoryPeople();
+
+	int num_people_finished;
+	fscanf(f, "%d", &num_people_finished); // nhận số lượng người đã vè đích
+
+	int x;
+
+	for (int i = 0; i < num_people_finished; i++)
+	{
+		if (feof(f)) return false;
+
+		fscanf(f, "%d", &x); // nhận vị trí từng người đã đến đích
+		addPeopleFinish(x); // 
+	}
 	return true;
 }

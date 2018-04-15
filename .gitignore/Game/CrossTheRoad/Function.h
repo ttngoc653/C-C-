@@ -8,6 +8,8 @@ struct PointPeoplePre
 	PointPeoplePre *next;
 };
 
+PointPeoplePre *getHeadPeoplePre();
+
 // khi người về đích hàm này sẽ được gọi để thêm vào dữ liệu
 bool addPeopleFinish(int _x);
 
@@ -17,3 +19,5 @@ bool testImpactWithPeoplePre(int _x);
 bool destroyHistoryPeople();
 
 bool writeHistoryToFile(FILE *f);
+
+bool readHistoryFromFile(FILE *f);

@@ -34,8 +34,9 @@ int HEIGH_CONSOLE = 20, WIDTH_CONSOLE = 70;// Độ rộng và độ cao của m
 
 
 bool STATE; // Trạng thái sống/chết của người qua đường 
-			//Buoc 4
-			//Hàm khởi tạo dữ liệu mặc định ban đầu 
+
+//Buoc 4
+//Hàm khởi tạo dữ liệu mặc định ban đầu 
 void ResetData() {
 	MOVING = 'D'; // Ban đầu cho người di chuyển sang phải   
 	SPEED = 1; // Tốc độ lúc đầu 
@@ -118,7 +119,7 @@ void ProcessDead() {
 }
 
 // 4.1
-// hàm xử lý khi người mới về đích với người về đích trước đó
+// hàm xử lý khi người mới về đích va chạm với người về đích trước đó
 void ProcessImpackPeoplePre() {
 	destroyHistoryPeople(); // xóa tất cả lịch sử người về đích trước đó
 
@@ -258,6 +259,86 @@ void MoveUp() {
 		DrawSticker(Y, "Y");
 	}
 }
+
+// 4.2
+void SaveGame() {
+	GotoXY(0, HEIGH_CONSOLE + 2);
+	printf("Input file name to save game: ");
+
+	char file_name[64];
+
+	gets_s(file_name, 64);
+	FILE *f = fopen(file_name, "wt");
+	
+	// xuất vị trí hiện tại của người đang qua đường
+	fprintf(f, "%d %d ", Y.x, Y.y);
+
+	// xuất tốc độ đang chạy
+	fprintf(f, "%d\n", SPEED);
+
+	// hàm xuất lịch sử người đã về đích
+	writeHistoryToFile(f);
+
+	// xuất tất cả vị trí (trục Ox) các xe đang chạy
+	for (int i = 0; i < MAX_CAR; i++)
+		fprintf(f, "%d ", X[i][0].x);
+
+	fclose(f);
+}
+
+void LoadFile() {
+
+	GotoXY(0, HEIGH_CONSOLE + 2);
+	printf("Input file name to load game: ");
+
+	char file_name[64];
+
+	gets_s(file_name, 64);
+	FILE *f = fopen(file_name, "rt");
+
+	fscanf(f, "%d%d%d", &Y.x, &Y.y, &SPEED);
+
+	readHistoryFromFile(f);
+
+	X = new POINT*[MAX_CAR];
+	for (int i = 0; i < MAX_CAR; i++)
+		X[i] = new POINT[MAX_CAR_LENGTH];
+	for (int i = 0; i < MAX_CAR; i++)
+	{
+		int temp;
+		fscanf(f, "%d", &temp);
+		for (int j = 0; j < MAX_CAR_LENGTH; j++)
+		{
+			X[i][j].x = temp + j;
+			X[i][j].y = 2 + i;
+		}
+	}
+}
+
+void LoadGame() {
+	system("cls");
+	GabageCollect();
+
+	MOVING = 'D'; // Ban đầu cho người di chuyển sang phải   
+	//SPEED = 1; // Tốc độ lúc đầu 
+	//Y = { 18,19 }; // Vị trí lúc đầu của người 
+				   // Tạo mảng xe chạy 
+	LoadFile();
+
+	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
+	// Vẽ màn hình game 
+
+	// Vẽ từng người đã tới đích
+	for (PointPeoplePre *i = getHeadPeoplePre(); i != NULL; i=i->next)
+	{
+		GotoXY(i->x, 1);
+		printf("Y");
+	}
+
+	STATE = true;//Bắt đầu cho Thread chạy 
+}
+// end 4.2
+
 //Buoc 14
 void SubThread()
 {
@@ -313,6 +394,16 @@ int main()
 			else if (temp == 'P') {
 				PauseGame(t1.native_handle());
 			}
+
+			// 4.2
+			else if (temp == 'L') {
+				SaveGame();
+			}
+			else if (temp == 'T') {
+				LoadGame();
+			}
+			// end 4.2
+
 			else {
 				ResumeThread((HANDLE)t1.native_handle());
 				if (temp == 'D' || temp == 'A' || temp == 'W' || temp == 'S')
@@ -332,5 +423,5 @@ int main()
 		}
 	}
 
-	return 1;
+	return true;
 }
