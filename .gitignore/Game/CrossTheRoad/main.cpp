@@ -2,9 +2,9 @@
 #include<iostream>
 #include<thread>
 #include<conio.h>
+#include"Function.h"
 
 using namespace std;
-
 //Buoc 1
 void FixConsoleWindow() {
 	HWND consoleWindow = GetConsoleWindow();
@@ -12,7 +12,6 @@ void FixConsoleWindow() {
 	style = style & ~(WS_MAXIMIZEBOX) & ~(WS_THICKFRAME);
 	SetWindowLong(consoleWindow, GWL_STYLE, style);
 }
-
 //Buoc 2
 void GotoXY(int x, int y) {
 	COORD coord;
@@ -20,7 +19,6 @@ void GotoXY(int x, int y) {
 	coord.Y = y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
-
 //Buoc 3
 //Hằng số
 #define MAX_CAR 17
@@ -116,11 +114,32 @@ void PauseGame(HANDLE t) {
 void ProcessDead() {
 	STATE = 0;
 	GotoXY(0, HEIGH_CONSOLE + 2);
-	printf("Dead, type y to continue or anykey to exit");
+	printf("Dead because impack wwith car, type y to continue or anykey to exit");
 }
+
+// 4.1
+// hàm xử lý khi người mới về đích với người về đích trước đó
+void ProcessImpackPeoplePre() {
+	destroyHistoryPeople(); // xóa tất cả lịch sử người về đích trước đó
+
+	STATE = 0;
+	GotoXY(0, HEIGH_CONSOLE + 2);
+	printf("Dead because impack with people before, type y to continue or anykey to exit");
+}
+// end 4.1
 
 //Hàm xử lý khi người băng qua đường thành công 
 void ProcessFinish(POINT& p) {
+
+	// 4.1 xét xem có chạm với người đi trước không
+	if (testImpactWithPeoplePre(p.x)) { // nếu có chạm
+		ProcessImpackPeoplePre(); // thì xử lý chạm người chơi
+	}
+	else {
+		addPeopleFinish(p.x); // thêm vị trí của người tới đích
+	}
+	// end 4.1
+
 	SPEED == MAX_SPEED ? SPEED = 1 : SPEED++;
 	p = { 18,19 }; // Vị trí lúc đầu của người
 	MOVING = 'D'; // Ban đầu cho người di chuyển sang phải 
@@ -206,7 +225,6 @@ void EraseCars()
 		} while (cnt < SPEED);
 	}
 }
-
 //Buoc 13
 void MoveRight() {
 	if (Y.x < WIDTH_CONSOLE - 1)
@@ -240,7 +258,6 @@ void MoveUp() {
 		DrawSticker(Y, "Y");
 	}
 }
-
 //Buoc 14
 void SubThread()
 {
