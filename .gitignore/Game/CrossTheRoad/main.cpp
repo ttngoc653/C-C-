@@ -286,7 +286,7 @@ void SaveGame() {
 	fclose(f);
 }
 
-void LoadFile() {
+bool LoadFile() {
 
 	GotoXY(0, HEIGH_CONSOLE + 2);
 	printf("Input file name to load game: ");
@@ -295,6 +295,8 @@ void LoadFile() {
 
 	gets_s(file_name, 64);
 	FILE *f = fopen(file_name, "rt");
+
+	if (f == NULL) return false;
 
 	fscanf(f, "%d%d%d", &Y.x, &Y.y, &SPEED);
 
@@ -313,6 +315,8 @@ void LoadFile() {
 			X[i][j].y = 2 + i;
 		}
 	}
+
+	return true;
 }
 
 void LoadGame() {
@@ -322,8 +326,17 @@ void LoadGame() {
 	MOVING = 'D'; // Ban đầu cho người di chuyển sang phải   
 	//SPEED = 1; // Tốc độ lúc đầu 
 	//Y = { 18,19 }; // Vị trí lúc đầu của người 
-				   // Tạo mảng xe chạy 
-	LoadFile();
+				   // Tạo mảng xe chạy
+	int temp;
+	while (!LoadFile())
+	{
+		GotoXY(0, HEIGH_CONSOLE + 2);
+		printf("Type C to start new game or other to continue input file name other");
+		if (toupper(getch()) == 'C') {
+			StartGame();
+			break;
+		}
+	}
 
 	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
 	// Vẽ màn hình game 
@@ -375,12 +388,28 @@ void SubThread()
 	}
 }
 
+// 4.5
+int MenuStart(){
+	//STATE = 0;
+	GotoXY(2, 5); // gắn vị trí ký tự đầu tiên của câu thông báo
+	printf("Type t to play from file or new game"); 
+	GotoXY(0, 0); // gán lại vị trí nếu muốn ghi ký tự ra ngoài màn hình
+	return toupper(getch()); // trả về ký tự đã nhập
+}
+//end 4.5
+
 int main()
 {
 	int temp;
 	FixConsoleWindow();
 	srand(time(NULL));
-	StartGame();
+
+	// 4.5
+	if (MenuStart() == 'T') // nếu mới vào nhập từ t || T
+		LoadGame(); // vào game bằng dữ liệu từ file
+	else StartGame(); // còn không thì bắt đầu trò chơi với dữ liệu gốc mặc định
+	// end 4.5
+
 	thread t1(SubThread);
 	while (1)
 	{
@@ -422,6 +451,6 @@ int main()
 			}
 		}
 	}
-
+	
 	return true;
 }
