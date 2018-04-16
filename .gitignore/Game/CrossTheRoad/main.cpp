@@ -110,42 +110,6 @@ void PauseGame(HANDLE t) {
 	SuspendThread(t);
 }
 
-//Buoc 8
-//Hàm xử lý khi người đụng xe 
-void ProcessDead() {
-	STATE = 0;
-	GotoXY(0, HEIGH_CONSOLE + 2);
-	printf("Dead because impack wwith car, type y to continue or anykey to exit");
-}
-
-// 4.1
-// hàm xử lý khi người mới về đích va chạm với người về đích trước đó
-void ProcessImpackPeoplePre() {
-	destroyHistoryPeople(); // xóa tất cả lịch sử người về đích trước đó
-
-	STATE = 0;
-	GotoXY(0, HEIGH_CONSOLE + 2);
-	printf("Dead because impack with people before, type y to continue or anykey to exit");
-}
-// end 4.1
-
-//Hàm xử lý khi người băng qua đường thành công 
-void ProcessFinish(POINT& p) {
-
-	// 4.1 xét xem có chạm với người đi trước không
-	if (testImpactWithPeoplePre(p.x)) { // nếu có chạm
-		ProcessImpackPeoplePre(); // thì xử lý chạm người chơi
-	}
-	else {
-		addPeopleFinish(p.x); // thêm vị trí của người tới đích
-	}
-	// end 4.1
-
-	SPEED == MAX_SPEED ? SPEED = 1 : SPEED++;
-	p = { 18,19 }; // Vị trí lúc đầu của người
-	MOVING = 'D'; // Ban đầu cho người di chuyển sang phải 
-}
-
 //Buoc 9
 //Hàm vẽ các toa xe 
 void DrawCars(char* s)
@@ -160,9 +124,70 @@ void DrawCars(char* s)
 }
 
 //Hàm vẽ người qua đường 
-void DrawSticker(const POINT& p, char* s) {
+void DrawSticker(const POINT& p, char* s, int color_sticker = 15) {
 	GotoXY(p.x, p.y);
+
+	// 4.3 - đổi màu Sticker thành màu color_sticker
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color_sticker);
 	printf(s);
+
+	// phục hồi lại màu của Sticker thành màu mặc định
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+	// end 4.3
+}
+
+//Buoc 8
+//Hàm xử lý khi người đụng xe 
+void ProcessDead() {
+	STATE = 0;
+
+	// 4.3
+	DrawSticker(Y, "Y", 12);
+	// end 4.3
+
+	GotoXY(0, HEIGH_CONSOLE + 2);
+	printf("Dead because impack with car, type y to continue or anykey to exit");
+}
+
+// 4.1
+// hàm xử lý khi người mới về đích va chạm với người về đích trước đó
+void ProcessImpackPeoplePre() {
+	destroyHistoryPeople(); // xóa tất cả lịch sử người về đích trước đó
+
+	// 4.3
+	DrawSticker(Y, "Y", 12);
+	// end 4.3
+
+	STATE = 0;
+	GotoXY(0, HEIGH_CONSOLE + 2);
+	printf("Dead because impack with people before, type y to continue or anykey to exit");
+}
+// end 4.1
+
+//Hàm xử lý khi người băng qua đường thành công 
+void ProcessFinish(POINT& p) {
+
+	// 4.1 xét xem có chạm với người đi trước không
+	if (testImpactWithPeoplePre(p.x)) { // nếu có chạm
+		ProcessImpackPeoplePre(); // thì xử lý chạm người chơi
+
+		// 4.3
+		DrawSticker(Y, "Y", 12);
+		// end4.3
+
+	}
+	else {
+		// 4.3
+		DrawSticker(Y, "Y", 10);
+		// end4.3
+
+		addPeopleFinish(p.x); // thêm vị trí của người tới đích
+	}
+	// end 4.1
+
+	SPEED == MAX_SPEED ? SPEED = 1 : SPEED++;
+	p = { 18,19 }; // Vị trí lúc đầu của người
+	MOVING = 'D'; // Ban đầu cho người di chuyển sang phải 
 }
 
 //Buoc 10
@@ -403,54 +428,56 @@ int main()
 	int temp;
 	FixConsoleWindow();
 	srand(time(NULL));
+	while (1) {
 
-	// 4.5
-	if (MenuStart() == 'T') // nếu mới vào nhập từ t || T
-		LoadGame(); // vào game bằng dữ liệu từ file
-	else StartGame(); // còn không thì bắt đầu trò chơi với dữ liệu gốc mặc định
-	// end 4.5
+		// 4.5
+		if (MenuStart() == 'T') // nếu mới vào nhập từ t || T
+			LoadGame(); // vào game bằng dữ liệu từ file
+		else StartGame(); // còn không thì bắt đầu trò chơi với dữ liệu gốc mặc định
+		// end 4.5
 
-	thread t1(SubThread);
-	while (1)
-	{
-		temp = toupper(getch());
-		if (STATE == 1)
+		thread t1(SubThread);
+		while (1)
 		{
-			if (temp == 27 || temp == 'E') {
-				ExitGame(t1.native_handle());
-				break;
-			}
-			else if (temp == 'P') {
-				PauseGame(t1.native_handle());
-			}
+			temp = toupper(getch());
+			if (STATE == 1)
+			{
+				if (temp == 27 || temp == 'E') {
+					ExitGame(t1.native_handle());
+					break;
+				}
+				else if (temp == 'P') {
+					PauseGame(t1.native_handle());
+				}
 
-			// 4.2
-			else if (temp == 'L') {
-				SaveGame();
-			}
-			else if (temp == 'T') {
-				LoadGame();
-			}
-			// end 4.2
+				// 4.2
+				else if (temp == 'L') {
+					SaveGame();
+				}
+				else if (temp == 'T') {
+					LoadGame();
+				}
+				// end 4.2
 
-			else {
-				ResumeThread((HANDLE)t1.native_handle());
-				if (temp == 'D' || temp == 'A' || temp == 'W' || temp == 'S')
-				{
-					MOVING = temp;
+				else {
+					ResumeThread((HANDLE)t1.native_handle());
+					if (temp == 'D' || temp == 'A' || temp == 'W' || temp == 'S')
+					{
+						MOVING = temp;
+					}
+				}
+			}
+			else
+			{
+				if (temp == 'Y')
+					StartGame();
+				else {
+					ExitGame(t1.native_handle());
+					break;
 				}
 			}
 		}
-		else
-		{
-			if (temp == 'Y')
-				StartGame();
-			else {
-				ExitGame(t1.native_handle());
-				break;
-			}
-		}
+
 	}
-	
 	return true;
 }
