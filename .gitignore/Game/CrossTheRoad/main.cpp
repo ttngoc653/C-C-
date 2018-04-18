@@ -32,6 +32,11 @@ int MOVING;//Biến xác định hướng di chuyển của người
 int SPEED;// Tốc độ xe chạy (xem như level) 
 int HEIGH_CONSOLE = 20, WIDTH_CONSOLE = 70;// Độ rộng và độ cao của màn hình console 
 
+// 4.3
+int *STOP_TIME = NULL; // <0 chạy cho tới khi dừng, >=0 số chạy cho tới khi chạy tiếp
+				// khi xe chạy thì khi tới giới hạn [-1;-40] thì chạy tiếp ra số ngẫu nhiên dương để bắt đầu dừng
+				// khi xe dừng tới giá trị [0; 39] thì tiếp tục ra số ngẫu nhiên âm để bắt đầu chạy tiếp cho tới khi dừng
+// end 4.3
 
 bool STATE; // Trạng thái sống/chết của người qua đường 
 
@@ -44,6 +49,11 @@ void ResetData() {
 				   // Tạo mảng xe chạy 
 	if (X == NULL) {
 		X = new POINT*[MAX_CAR];
+
+		// 5.3
+		STOP_TIME = new INT[MAX_CAR];
+		// end 5.3
+		
 		for (int i = 0; i < MAX_CAR; i++)
 			X[i] = new POINT[MAX_CAR_LENGTH];
 		for (int i = 0; i < MAX_CAR; i++)
@@ -54,6 +64,7 @@ void ResetData() {
 				X[i][j].x = temp + j;
 				X[i][j].y = 2 + i;
 			}
+
 		}
 	}
 }
@@ -204,6 +215,14 @@ bool IsImpact(const POINT& p, int d)
 }
 
 //Buoc 11
+
+// 4.3
+int random() {
+	  
+	return rand() % 100 + (cnt * 100);
+}
+// end 4.3
+
 void MoveCars() {
 	for (int i = 1; i < MAX_CAR; i += 2)
 	{
@@ -225,7 +244,7 @@ void MoveCars() {
 			{
 				X[i][j] = X[i][j - 1];
 			}
-			X[i][0].x - 1 == 0 ? X[i][0].x = WIDTH_CONSOLE - 1 : X[i][0].x--;// Kiểm tra xem xe có đụng màn hình không 
+			X[i][0].x - 1 == 0 ? X[i][0].x = WIDTH_CONSOLE - 1 : X[i][0].x--; // Kiểm tra xem xe có đụng màn hình không 
 		} while (cnt < SPEED);
 	}
 }
