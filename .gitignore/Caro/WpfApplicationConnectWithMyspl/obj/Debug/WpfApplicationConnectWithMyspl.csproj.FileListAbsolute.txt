@@ -18,3 +18,6 @@ D:\Zitch\Caro\WpfApplicationConnectWithMyspl\bin\Debug\Devart.Data.xml
 D:\Zitch\Caro\WpfApplicationConnectWithMyspl\bin\Debug\Devart.Data.MySql.xml
 D:\Zitch\Caro\WpfApplicationConnectWithMyspl\bin\Debug\WpfApplicationConnectWithMyspl.exe.CodeAnalysisLog.xml
 D:\Zitch\Caro\WpfApplicationConnectWithMyspl\bin\Debug\WpfApplicationConnectWithMyspl.exe.lastcodeanalysissucceeded
+D:\Joss\Git\C-C-\.gitignore\Caro\WpfApplicationConnectWithMyspl\bin\Debug\WpfApplicationConnectWithMyspl.exe.config
+D:\Joss\Git\C-C-\.gitignore\Caro\WpfApplicationConnectWithMyspl\obj\Debug\WpfApplicationConnectWithMyspl.exe
+D:\Joss\Git\C-C-\.gitignore\Caro\WpfApplicationConnectWithMyspl\obj\Debug\WpfApplicationConnectWithMyspl.pdb

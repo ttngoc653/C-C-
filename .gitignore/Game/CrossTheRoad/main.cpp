@@ -104,11 +104,14 @@ void StartGame() {
 //Hàm dọn dẹp tài nguyên 
 void GabageCollect()
 {
+	if (X == NULL) return;
 	for (int i = 0; i < MAX_CAR; i++)
 	{
 		delete[] X[i];
 	}
 	delete[] X;
+
+	X = NULL;
 }
 //Hàm thoát game 
 void ExitGame(HANDLE t) {
@@ -232,7 +235,8 @@ void MoveCars() {
 			for (int j = 0; j < MAX_CAR_LENGTH - 1; j++) {
 				X[i][j] = X[i][j + 1];
 			}
-			X[i][MAX_CAR_LENGTH - 1].x + 1 == WIDTH_CONSOLE ? X[i][MAX_CAR_LENGTH - 1].x = 1 : X[i][MAX_CAR_LENGTH - 1].x++; // Kiểm tra xem xe có đụng màn hình không
+			X[i][MAX_CAR_LENGTH - 1].x + 1 == WIDTH_CONSOLE ? X[i][MAX_CAR_LENGTH - 1].x = 1 : X[i][MAX_CAR_LENGTH - 1].x++; 
+			// Kiểm tra xem xe có đụng màn hình không
 		} while (cnt < SPEED);
 	}
 	for (int i = 0; i < MAX_CAR; i += 2)
@@ -371,6 +375,7 @@ bool LoadFile(HANDLE t) {
 
 void LoadGame(HANDLE t = NULL) {
 	system("cls");
+	
 	GabageCollect();
 
 	MOVING = 'D'; // Ban đầu cho người di chuyển sang phải   
