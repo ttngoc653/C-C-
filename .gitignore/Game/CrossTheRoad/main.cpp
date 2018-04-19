@@ -305,11 +305,13 @@ void MoveUp() {
 }
 
 // 4.2
-void SaveGame() {
+void SaveGame(HANDLE t) {
 	GotoXY(0, HEIGH_CONSOLE + 2);
 	printf("Input file name to save game: ");
 
 	char file_name[64];
+
+	SuspendThread(t);
 
 	gets_s(file_name, 64);
 	FILE *f = fopen(file_name, "wt");
@@ -327,15 +329,19 @@ void SaveGame() {
 	for (int i = 0; i < MAX_CAR; i++)
 		fprintf(f, "%d ", X[i][0].x);
 
+	printf("Game saved!!! Input any key to play");
+
 	fclose(f);
 }
 
-bool LoadFile() {
+bool LoadFile(HANDLE t) {
 
 	GotoXY(0, HEIGH_CONSOLE + 2);
 	printf("Input file name to load game: ");
 
 	char file_name[64];
+
+	if (t != NULL)	SuspendThread(t);
 
 	gets_s(file_name, 64);
 	FILE *f = fopen(file_name, "rt");
@@ -363,7 +369,7 @@ bool LoadFile() {
 	return true;
 }
 
-void LoadGame() {
+void LoadGame(HANDLE t = NULL) {
 	system("cls");
 	GabageCollect();
 
@@ -372,7 +378,7 @@ void LoadGame() {
 	//Y = { 18,19 }; // Vị trí lúc đầu của người 
 				   // Tạo mảng xe chạy
 	int temp;
-	while (!LoadFile())
+	while (!LoadFile(t))
 	{
 		GotoXY(0, HEIGH_CONSOLE + 2);
 		printf("Type C to start new game or other to continue input file name other");
@@ -386,11 +392,15 @@ void LoadGame() {
 	// Vẽ màn hình game 
 
 	// Vẽ từng người đã tới đích
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
 	for (PointPeoplePre *i = getHeadPeoplePre(); i != NULL; i=i->next)
 	{
 		GotoXY(i->x, 1);
 		printf("Y");
 	}
+	// phục hồi lại màu của Sticker thành màu mặc định
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 
 	STATE = true;//Bắt đầu cho Thread chạy 
 }
@@ -436,13 +446,13 @@ void SubThread()
 int MenuStart(){
 	//STATE = 0;
 	GotoXY(2, 5); // gắn vị trí ký tự đầu tiên của câu thông báo
-	printf("Type t to play from file or new game"); 
+	printf("Type t to play from file or any key to new game"); 
 	GotoXY(0, 0); // gán lại vị trí nếu muốn ghi ký tự ra ngoài màn hình
 	return toupper(getch()); // trả về ký tự đã nhập
 }
 //end 4.5
 
-int main()
+void main()
 {
 	int temp;
 	FixConsoleWindow();
@@ -471,10 +481,10 @@ int main()
 
 				// 4.2
 				else if (temp == 'L') {
-					SaveGame();
+					SaveGame(t1.native_handle());
 				}
 				else if (temp == 'T') {
-					LoadGame();
+					LoadGame(t1.native_handle());
 				}
 				// end 4.2
 
@@ -498,5 +508,4 @@ int main()
 		}
 
 	}
-	return true;
 }
