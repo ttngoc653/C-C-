@@ -1,19 +1,19 @@
 ﻿  main.cpp
-d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(320): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(327): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
-d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(350): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(360): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
-d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(354): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
 d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(364): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(389): warning C4996: 'getch': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _getch. See online help for details.
+d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(377): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
+d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(400): warning C4996: 'getch': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _getch. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\conio.h(452): note: see declaration of 'getch'
-d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(384): warning C4101: 'temp': unreferenced local variable
-d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(455): warning C4996: 'getch': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _getch. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\conio.h(452): note: see declaration of 'getch'
-d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(463): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(395): warning C4101: 'temp': unreferenced local variable
 d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(475): warning C4996: 'getch': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _getch. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\conio.h(452): note: see declaration of 'getch'
+d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(483): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+d:\joss\git\c-c-\.gitignore\game\crosstheroad\main.cpp(498): warning C4996: 'getch': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _getch. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\conio.h(452): note: see declaration of 'getch'
   CrossTheRoad.vcxproj -> D:\Joss\Git\C-C-\.gitignore\Game\x64\Debug\CrossTheRoad.exe
   CrossTheRoad.vcxproj -> D:\Joss\Git\C-C-\.gitignore\Game\x64\Debug\CrossTheRoad.pdb (Full PDB)

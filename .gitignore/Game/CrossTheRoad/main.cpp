@@ -36,6 +36,8 @@ int HEIGH_CONSOLE = 20, WIDTH_CONSOLE = 70;// Độ rộng và độ cao của m
 int *STOP_TIME = NULL; // <0 chạy cho tới khi dừng, >=0 số chạy cho tới khi chạy tiếp
 				// khi xe chạy thì khi tới giới hạn [-1;-40] thì chạy tiếp ra số ngẫu nhiên dương để bắt đầu dừng
 				// khi xe dừng tới giá trị [0; 39] thì tiếp tục ra số ngẫu nhiên âm để bắt đầu chạy tiếp cho tới khi dừng
+
+bool STOP = FALSE;
 // end 4.3
 
 bool STATE; // Trạng thái sống/chết của người qua đường 
@@ -227,6 +229,8 @@ int random() {
 // end 4.3
 
 void MoveCars() {
+	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
+
 	for (int i = 1; i < MAX_CAR; i += 2)
 	{
 		cnt = 0;
@@ -257,6 +261,8 @@ void MoveCars() {
 // Hàm xóa xe (xóa có nghĩa là không vẽ) 
 void EraseCars()
 {
+	//system("cls");
+
 	for (int i = 0; i < MAX_CAR; i += 2) {
 		cnt = 0;
 		do {
@@ -313,10 +319,10 @@ void SaveGame(HANDLE t) {
 	GotoXY(0, HEIGH_CONSOLE + 2);
 	printf("Input file name to save game: ");
 
-	char file_name[64];
-
 	SuspendThread(t);
 
+	char file_name[64];
+	GotoXY(31, HEIGH_CONSOLE + 2);
 	gets_s(file_name, 64);
 	FILE *f = fopen(file_name, "wt");
 	
@@ -331,11 +337,14 @@ void SaveGame(HANDLE t) {
 
 	// xuất tất cả vị trí (trục Ox) các xe đang chạy
 	for (int i = 0; i < MAX_CAR; i++)
-		fprintf(f, "%d ", X[i][0].x);
+		fprintf(f, "%d ", X[i][0].x - 1);
 
+	GotoXY(0, HEIGH_CONSOLE + 3);
 	printf("Game saved!!! Input any key to play");
 
 	fclose(f);
+
+	//SuspendThread(t);
 }
 
 bool LoadFile(HANDLE t) {
@@ -356,16 +365,20 @@ bool LoadFile(HANDLE t) {
 
 	readHistoryFromFile(f);
 
-	X = new POINT*[MAX_CAR];
-	for (int i = 0; i < MAX_CAR; i++)
-		X[i] = new POINT[MAX_CAR_LENGTH];
+	if (X == NULL) {
+		X = new POINT*[MAX_CAR];
+		for (int i = 0; i < MAX_CAR; i++)
+			X[i] = new POINT[MAX_CAR_LENGTH];
+	}
+
 	for (int i = 0; i < MAX_CAR; i++)
 	{
 		int temp;
 		fscanf(f, "%d", &temp);
 		for (int j = 0; j < MAX_CAR_LENGTH; j++)
 		{
-			X[i][j].x = temp + j;
+			//X[i][j].x = ((temp % (WIDTH_CONSOLE - MAX_CAR_LENGTH)) + 1 + j);
+			X[i][j].x = ((temp + j) % (WIDTH_CONSOLE)) + 1;
 			X[i][j].y = 2 + i;
 		}
 	}
@@ -374,10 +387,7 @@ bool LoadFile(HANDLE t) {
 }
 
 void LoadGame(HANDLE t = NULL) {
-	system("cls");
 	
-	GabageCollect();
-
 	MOVING = 'D'; // Ban đầu cho người di chuyển sang phải   
 	//SPEED = 1; // Tốc độ lúc đầu 
 	//Y = { 18,19 }; // Vị trí lúc đầu của người 
@@ -393,6 +403,8 @@ void LoadGame(HANDLE t = NULL) {
 		}
 	}
 
+	system("cls");
+		
 	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
 	// Vẽ màn hình game 
 
@@ -408,6 +420,12 @@ void LoadGame(HANDLE t = NULL) {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 
 	STATE = true;//Bắt đầu cho Thread chạy 
+	DrawCars(".");
+	DrawSticker(Y, "0");
+	if (t != NULL) SuspendThread(t);
+
+	GotoXY(0, HEIGH_CONSOLE + 3);
+	printf("Game loaded!!! Input any key to play");
 }
 // end 4.2
 
@@ -415,6 +433,7 @@ void LoadGame(HANDLE t = NULL) {
 void SubThread()
 {
 	while (1) {
+
 		if (STATE) //Nếu người vẫn còn sống    
 		{
 			switch (MOVING) //Kiểm tra biến moving 
@@ -434,7 +453,7 @@ void SubThread()
 			}
 			MOVING = ' ';// Tạm khóa không cho di chuyển, chờ nhận phím từ hàm main 
 			EraseCars();
-			MoveCars();
+			if (STOP == FALSE) MoveCars();
 			DrawCars(".");
 			if (IsImpact(Y, Y.y))
 			{
@@ -462,6 +481,7 @@ void main()
 	int temp;
 	FixConsoleWindow();
 	srand(time(NULL));
+
 	while (1) {
 
 		// 4.5
@@ -471,6 +491,8 @@ void main()
 		// end 4.5
 
 		thread t1(SubThread);
+
+		SuspendThread(t1.native_handle());
 		while (1)
 		{
 			temp = toupper(getch());
@@ -486,7 +508,9 @@ void main()
 
 				// 4.2
 				else if (temp == 'L') {
+					STOP = TRUE;
 					SaveGame(t1.native_handle());
+					STOP = FALSE;
 				}
 				else if (temp == 'T') {
 					LoadGame(t1.native_handle());
