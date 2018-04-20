@@ -37,7 +37,13 @@ int *STOP_TIME = NULL; // <0 chạy cho tới khi dừng, >=0 số chạy cho t�
 				// khi xe chạy thì khi tới giới hạn [-1;-40] thì chạy tiếp ra số ngẫu nhiên dương để bắt đầu dừng
 				// khi xe dừng tới giá trị [0; 39] thì tiếp tục ra số ngẫu nhiên âm để bắt đầu chạy tiếp cho tới khi dừng
 
-bool STOP = FALSE;
+bool STOP = false;
+
+bool haveGARBAGE = false;
+bool ClearConsole() {
+	system("cls");
+	return false;
+}
 // end 4.3
 
 bool STATE; // Trạng thái sống/chết của người qua đường 
@@ -124,7 +130,7 @@ void DrawSticker(const POINT& p, char* s, int color_sticker = 15) {
 
 //Buoc 6
 void StartGame() {
-	system("cls");
+	ClearConsole();
 	ResetData(); // Khởi tạo dữ liệu gốc 
 	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
 	// Vẽ màn hình game 
@@ -135,6 +141,7 @@ void StartGame() {
 	GotoXY(0, HEIGH_CONSOLE + 3);
 	printf("Input any key to play");
 
+	haveGARBAGE = true;
 	STATE = true;//Bắt đầu cho Thread chạy 
 }
 
@@ -149,11 +156,12 @@ void GabageCollect()
 	}
 	delete[] X;
 
+	delete[] STOP_TIME;
 	X = NULL;
 }
 //Hàm thoát game 
 void ExitGame(HANDLE t) {
-	system("cls");
+	ClearConsole();
 	TerminateThread(t, 0);
 	GabageCollect();
 }
@@ -339,10 +347,12 @@ void MoveUp() {
 
 // 4.2
 void SaveGame(HANDLE t) {
-	GotoXY(0, HEIGH_CONSOLE + 2);
-	printf("Input file name to save game: ");
 
 	SuspendThread(t);
+
+	fflush(stdin);
+	GotoXY(0, HEIGH_CONSOLE + 2);
+	printf("Input file name to save game: ");
 
 	char file_name[64];
 	GotoXY(31, HEIGH_CONSOLE + 2);
@@ -372,17 +382,19 @@ void SaveGame(HANDLE t) {
 	
 	GotoXY(0, HEIGH_CONSOLE + 3);
 	printf("Game saved!!! Input any key to play");
+
+	haveGARBAGE = true;
 }
 
 bool LoadFile(HANDLE t) {
-
+	if (t != NULL)	SuspendThread(t);
+	fflush(stdin);
 	GotoXY(0, HEIGH_CONSOLE + 2);
 	printf("Input file name to load game: ");
 
 	char file_name[64];
 
-	if (t != NULL)	SuspendThread(t);
-
+	
 	gets_s(file_name, 64);
 	FILE *f = fopen(file_name, "rt");
 
@@ -407,13 +419,15 @@ bool LoadFile(HANDLE t) {
 		for (int j = 0; j < MAX_CAR_LENGTH; j++)
 		{
 			//X[i][j].x = ((temp % (WIDTH_CONSOLE - MAX_CAR_LENGTH)) + 1 + j);
-			X[i][j].x = ((temp + j) % (WIDTH_CONSOLE)) + 1;
+			X[i][j].x = ((temp + j) % (WIDTH_CONSOLE - 1)) + 1;
 			X[i][j].y = 2 + i;
 		}
 	}
 
 	for (int i = 0; i < MAX_CAR; i++)
 		fscanf(f, "%d ", &STOP_TIME[i]);
+
+	haveGARBAGE = true;
 
 	return true;
 }
@@ -428,10 +442,10 @@ void LoadGame(HANDLE t = NULL) {
 	while (!LoadFile(t))
 	{
 		GotoXY(0, HEIGH_CONSOLE + 2);
-		printf("Type C to start new game or other to continue input file name other");
-		if (toupper(getch()) == 'C') {
+		printf("Type N to start new game or other to continue input file name other");
+		if (toupper(getch()) == 'N') {
 			StartGame();
-			break;
+			return;
 		}
 	}
 
@@ -454,10 +468,11 @@ void LoadGame(HANDLE t = NULL) {
 	STATE = true;//Bắt đầu cho Thread chạy 
 	DrawCars(".");
 	DrawSticker(Y, "0");
-	if (t != NULL) SuspendThread(t);
+	//if (t != NULL) SuspendThread(t);
 
 	GotoXY(0, HEIGH_CONSOLE + 3);
 	printf("Game loaded!!! Input any key to play");
+	haveGARBAGE = true;
 }
 // end 4.2
 
@@ -503,6 +518,7 @@ int MenuStart(){
 	GotoXY(2, 5); // gắn vị trí ký tự đầu tiên của câu thông báo
 	printf("Type t to play from file or any key to new game"); 
 	GotoXY(0, 0); // gán lại vị trí nếu muốn ghi ký tự ra ngoài màn hình
+	haveGARBAGE = true;
 	return toupper(getch()); // trả về ký tự đã nhập
 }
 //end 4.5
@@ -550,6 +566,7 @@ void main()
 
 				else {
 					ResumeThread((HANDLE)t1.native_handle());
+					haveGARBAGE = haveGARBAGE == true ? ClearConsole() : false;
 					if (temp == 'D' || temp == 'A' || temp == 'W' || temp == 'S')
 					{
 						MOVING = temp;
