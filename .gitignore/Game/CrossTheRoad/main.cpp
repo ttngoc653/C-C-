@@ -60,6 +60,8 @@ void ResetData() {
 			X[i] = new POINT[MAX_CAR_LENGTH];
 		for (int i = 0; i < MAX_CAR; i++)
 		{
+			STOP_TIME[i] = 0;
+
 			int temp = (rand() % (WIDTH_CONSOLE - MAX_CAR_LENGTH)) + 1;
 			for (int j = 0; j < MAX_CAR_LENGTH; j++)
 			{
@@ -222,38 +224,51 @@ bool IsImpact(const POINT& p, int d)
 //Buoc 11
 
 // 4.3
-int random() {
-	  
-	return rand() % 100 + (cnt * 100);
+void ProcessStopAndRun() {
+
+	srand(time(0));
+
+	for (int i = 0; i < MAX_CAR; i++)
+	{
+		if (STOP_TIME[i] >= 0 && STOP_TIME[i] < 1) STOP_TIME[i] = -1 * ((rand() % (SPEED * 100))*10/SPEED); // nếu xe đang dừng tới 0 thì chuyển sang thời gian chạy
+		if (STOP_TIME[i] >= -1 && STOP_TIME[i] < 0) STOP_TIME[i] = 1 * ((rand() % (SPEED * 100))); // nếu xe đang chạy tới -1 chuyển sang thời gian dừng
+
+		STOP_TIME[i] += (STOP_TIME[i] >= 0) ? -1 : 1; // nếu đang dừng (>=0) thì giảm để chuyển qua thời gian chạy
+														// ngược lại nếu đang chạy (<0) thì tăng lên để xe dừng
+	}
 }
 // end 4.3
 
 void MoveCars() {
 	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
-
+	ProcessStopAndRun();
 	for (int i = 1; i < MAX_CAR; i += 2)
 	{
-		cnt = 0;
-		do {
-			cnt++;
-			for (int j = 0; j < MAX_CAR_LENGTH - 1; j++) {
-				X[i][j] = X[i][j + 1];
-			}
-			X[i][MAX_CAR_LENGTH - 1].x + 1 == WIDTH_CONSOLE ? X[i][MAX_CAR_LENGTH - 1].x = 1 : X[i][MAX_CAR_LENGTH - 1].x++; 
-			// Kiểm tra xem xe có đụng màn hình không
-		} while (cnt < SPEED);
+		if (STOP_TIME[i] < 0) {
+			cnt = 0;
+			do {
+				cnt++;
+				for (int j = 0; j < MAX_CAR_LENGTH - 1; j++) {
+					X[i][j] = X[i][j + 1];
+				}
+				X[i][MAX_CAR_LENGTH - 1].x + 1 == WIDTH_CONSOLE ? X[i][MAX_CAR_LENGTH - 1].x = 1 : X[i][MAX_CAR_LENGTH - 1].x++;
+				// Kiểm tra xem xe có đụng màn hình không
+			} while (cnt < SPEED);
+		}
 	}
 	for (int i = 0; i < MAX_CAR; i += 2)
 	{
-		cnt = 0;
-		do {
-			cnt++;
-			for (int j = MAX_CAR_LENGTH - 1; j > 0; j--)
-			{
-				X[i][j] = X[i][j - 1];
-			}
-			X[i][0].x - 1 == 0 ? X[i][0].x = WIDTH_CONSOLE - 1 : X[i][0].x--; // Kiểm tra xem xe có đụng màn hình không 
-		} while (cnt < SPEED);
+		if (STOP_TIME[i] < 0) {
+			cnt = 0;
+			do {
+				cnt++;
+				for (int j = MAX_CAR_LENGTH - 1; j > 0; j--)
+				{
+					X[i][j] = X[i][j - 1];
+				}
+				X[i][0].x - 1 == 0 ? X[i][0].x = WIDTH_CONSOLE - 1 : X[i][0].x--; // Kiểm tra xem xe có đụng màn hình không 
+			} while (cnt < SPEED);
+		}
 	}
 }
 
@@ -366,6 +381,8 @@ bool LoadFile(HANDLE t) {
 	readHistoryFromFile(f);
 
 	if (X == NULL) {
+		STOP_TIME = new INT[MAX_CAR];
+
 		X = new POINT*[MAX_CAR];
 		for (int i = 0; i < MAX_CAR; i++)
 			X[i] = new POINT[MAX_CAR_LENGTH];
@@ -433,7 +450,6 @@ void LoadGame(HANDLE t = NULL) {
 void SubThread()
 {
 	while (1) {
-
 		if (STATE) //Nếu người vẫn còn sống    
 		{
 			switch (MOVING) //Kiểm tra biến moving 
