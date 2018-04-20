@@ -96,38 +96,6 @@ void DrawBoard(int x, int y, int width, int height, int curPosX = 0, int curPosY
 	GotoXY(curPosX, curPosY);
 }
 
-//Buoc 6
-void StartGame() {
-	system("cls");
-	ResetData(); // Khởi tạo dữ liệu gốc 
-	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
-	// Vẽ màn hình game 
-	STATE = true;//Bắt đầu cho Thread chạy 
-}
-//Buoc 7
-//Hàm dọn dẹp tài nguyên 
-void GabageCollect()
-{
-	if (X == NULL) return;
-	for (int i = 0; i < MAX_CAR; i++)
-	{
-		delete[] X[i];
-	}
-	delete[] X;
-
-	X = NULL;
-}
-//Hàm thoát game 
-void ExitGame(HANDLE t) {
-	system("cls");
-	TerminateThread(t, 0);
-	GabageCollect();
-}
-//Hàm dừng game 
-void PauseGame(HANDLE t) {
-	SuspendThread(t);
-}
-
 //Buoc 9
 //Hàm vẽ các toa xe 
 void DrawCars(char* s)
@@ -152,6 +120,46 @@ void DrawSticker(const POINT& p, char* s, int color_sticker = 15) {
 	// phục hồi lại màu của Sticker thành màu mặc định
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 	// end 4.3
+}
+
+//Buoc 6
+void StartGame() {
+	system("cls");
+	ResetData(); // Khởi tạo dữ liệu gốc 
+	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
+	// Vẽ màn hình game 
+	
+	DrawCars(".");
+	DrawSticker(Y, "0");
+
+	GotoXY(0, HEIGH_CONSOLE + 3);
+	printf("Input any key to play");
+
+	STATE = true;//Bắt đầu cho Thread chạy 
+}
+
+//Buoc 7
+//Hàm dọn dẹp tài nguyên 
+void GabageCollect()
+{
+	if (X == NULL) return;
+	for (int i = 0; i < MAX_CAR; i++)
+	{
+		delete[] X[i];
+	}
+	delete[] X;
+
+	X = NULL;
+}
+//Hàm thoát game 
+void ExitGame(HANDLE t) {
+	system("cls");
+	TerminateThread(t, 0);
+	GabageCollect();
+}
+//Hàm dừng game 
+void PauseGame(HANDLE t) {
+	SuspendThread(t);
 }
 
 //Buoc 8
@@ -349,17 +357,21 @@ void SaveGame(HANDLE t) {
 
 	// hàm xuất lịch sử người đã về đích
 	writeHistoryToFile(f);
-
+	
 	// xuất tất cả vị trí (trục Ox) các xe đang chạy
 	for (int i = 0; i < MAX_CAR; i++)
 		fprintf(f, "%d ", X[i][0].x - 1);
 
-	GotoXY(0, HEIGH_CONSOLE + 3);
-	printf("Game saved!!! Input any key to play");
+	fprintf(f, "\n");
+	
+	// xuất thời gian chạy/dừng của tất cả các xe
+	for (int i = 0; i < MAX_CAR; i++)
+		fprintf(f, "%d ", STOP_TIME[i]);
 
 	fclose(f);
-
-	//SuspendThread(t);
+	
+	GotoXY(0, HEIGH_CONSOLE + 3);
+	printf("Game saved!!! Input any key to play");
 }
 
 bool LoadFile(HANDLE t) {
@@ -399,6 +411,9 @@ bool LoadFile(HANDLE t) {
 			X[i][j].y = 2 + i;
 		}
 	}
+
+	for (int i = 0; i < MAX_CAR; i++)
+		fscanf(f, "%d ", &STOP_TIME[i]);
 
 	return true;
 }
