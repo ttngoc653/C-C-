@@ -24,7 +24,7 @@ bool addPeopleFinish(int _x) {
 
 // xét sự va chạm khi người về đích thì hàm này được goi để xem có đụng với người đi trước hay không
 bool testImpactWithPeoplePre(int _x) {
-	for (PointPeoplePre *p = 0; p != NULL; p = p->next)
+	for (PointPeoplePre *p = headPeoplePre; p != NULL; p = p->next)
 		if (p->x == _x) return true;
 
 	return false;
@@ -45,10 +45,16 @@ bool destroyHistoryPeople() {
 }
 
 // đếm người đã về đích
-int countPeopleFinished(PointPeoplePre *p = headPeoplePre) {
+
+
+int countPeopleFinishedHide(PointPeoplePre *p = headPeoplePre) {
 	if (p == NULL) return 0;
 
-	return countPeopleFinished(p->next) + 1;
+	return countPeopleFinishedHide(p->next) + 1;
+}
+
+int countPeopleFinished() {
+	return countPeopleFinishedHide();
 }
 
 bool writeHistoryToFile(FILE *f)

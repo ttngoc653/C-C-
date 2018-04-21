@@ -186,8 +186,6 @@ void ProcessDead() {
 // 4.1
 // hàm xử lý khi người mới về đích va chạm với người về đích trước đó
 void ProcessImpackPeoplePre() {
-	destroyHistoryPeople(); // xóa tất cả lịch sử người về đích trước đó
-
 	// 4.3
 	DrawSticker(Y, "Y", 12);
 	// end 4.3
@@ -195,6 +193,12 @@ void ProcessImpackPeoplePre() {
 	STATE = 0;
 	GotoXY(0, HEIGH_CONSOLE + 2);
 	printf("Dead because impack with people before, type y to continue or anykey to exit");
+
+	GotoXY(0, HEIGH_CONSOLE + 1);
+	printf("Finished %d people.", countPeopleFinished() - 1);
+
+	destroyHistoryPeople(); // xóa tất cả lịch sử người về đích trước đó
+
 }
 // end 4.1
 
@@ -218,8 +222,8 @@ void ProcessFinish(POINT& p) {
 		addPeopleFinish(p.x); // thêm vị trí của người tới đích
 	}
 	// end 4.1
-
-	SPEED == MAX_SPEED ? SPEED = 1 : SPEED++;
+	SPEED = 1;
+	//SPEED == MAX_SPEED ? SPEED = 1 : SPEED++;
 	p = { 18,19 }; // Vị trí lúc đầu của người
 	MOVING = 'D'; // Ban đầu cho người di chuyển sang phải 
 }

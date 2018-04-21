@@ -21,3 +21,5 @@ bool destroyHistoryPeople();
 bool writeHistoryToFile(FILE *f);
 
 bool readHistoryFromFile(FILE *f);
+
+int countPeopleFinished();
