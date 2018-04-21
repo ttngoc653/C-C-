@@ -178,6 +178,8 @@ void ProcessDead() {
 	// 4.3
 	DrawSticker(Y, "Y", 12);
 	// end 4.3
+	GotoXY(0, HEIGH_CONSOLE + 1);
+	printf("Finished %d people.", countPeopleFinished());
 
 	GotoXY(0, HEIGH_CONSOLE + 2);
 	printf("Dead because impack with car, type y to continue or anykey to exit");
@@ -195,7 +197,7 @@ void ProcessImpackPeoplePre() {
 	printf("Dead because impack with people before, type y to continue or anykey to exit");
 
 	GotoXY(0, HEIGH_CONSOLE + 1);
-	printf("Finished %d people.", countPeopleFinished() - 1);
+	printf("Finished %d people.", countPeopleFinished());
 
 	destroyHistoryPeople(); // xóa tất cả lịch sử người về đích trước đó
 
@@ -246,7 +248,7 @@ bool IsImpact(const POINT& p, int d)
 // 4.3
 void ProcessStopAndRun() {
 
-	srand(time(0));
+	srand((unsigned int)time(0));
 
 	for (int i = 0; i < MAX_CAR; i++)
 	{
@@ -354,7 +356,7 @@ void SaveGame(HANDLE t) {
 
 	SuspendThread(t);
 
-	fflush(stdin);
+	//fflush(stdin);
 	GotoXY(0, HEIGH_CONSOLE + 2);
 	printf("Input file name to save game: ");
 
@@ -372,6 +374,8 @@ void SaveGame(HANDLE t) {
 	// hàm xuất lịch sử người đã về đích
 	writeHistoryToFile(f);
 	
+	fprintf(f, "\n");
+
 	// xuất tất cả vị trí (trục Ox) các xe đang chạy
 	for (int i = 0; i < MAX_CAR; i++)
 		fprintf(f, "%d ", X[i][0].x - 1);
@@ -392,7 +396,20 @@ void SaveGame(HANDLE t) {
 
 bool LoadFile(HANDLE t) {
 	if (t != NULL)	SuspendThread(t);
-	fflush(stdin);
+	//fflush(stdin);
+
+	system("cls");
+	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
+	if (X != NULL) {
+		DrawCars("-");
+		DrawSticker(Y, "Y");
+	}
+
+	for (PointPeoplePre *p = getHeadPeoplePre(); p!=NULL; p=p->next)
+	{
+		DrawSticker({ p->x,1 }, "Y", 12);
+	}
+
 	GotoXY(0, HEIGH_CONSOLE + 2);
 	printf("Input file name to load game: ");
 
@@ -442,7 +459,7 @@ void LoadGame(HANDLE t = NULL) {
 	//SPEED = 1; // Tốc độ lúc đầu 
 	//Y = { 18,19 }; // Vị trí lúc đầu của người 
 				   // Tạo mảng xe chạy
-	int temp;
+	int temp = 0;
 	while (!LoadFile(t))
 	{
 		GotoXY(0, HEIGH_CONSOLE + 2);
@@ -531,7 +548,7 @@ void main()
 {
 	int temp;
 	FixConsoleWindow();
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	while (1) {
 
@@ -587,6 +604,5 @@ void main()
 				}
 			}
 		}
-
 	}
 }
