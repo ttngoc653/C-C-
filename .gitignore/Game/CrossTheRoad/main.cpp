@@ -224,8 +224,8 @@ void ProcessFinish(POINT& p) {
 		addPeopleFinish(p.x); // thêm vị trí của người tới đích
 	}
 	// end 4.1
-	SPEED = 1;
-	//SPEED == MAX_SPEED ? SPEED = 1 : SPEED++;
+	//SPEED = 1;
+	SPEED == MAX_SPEED ? SPEED = 1 : SPEED++;
 	p = { 18,19 }; // Vị trí lúc đầu của người
 	MOVING = 'D'; // Ban đầu cho người di chuyển sang phải 
 }
@@ -252,8 +252,8 @@ void ProcessStopAndRun() {
 
 	for (int i = 0; i < MAX_CAR; i++)
 	{
-		if (STOP_TIME[i] >= 0 && STOP_TIME[i] < 1) STOP_TIME[i] = -1 * ((rand() % (SPEED * 100))*10/SPEED); // nếu xe đang dừng tới 0 thì chuyển sang thời gian chạy
-		if (STOP_TIME[i] >= -1 && STOP_TIME[i] < 0) STOP_TIME[i] = 1 * ((rand() % (SPEED * 100))); // nếu xe đang chạy tới -1 chuyển sang thời gian dừng
+		if (STOP_TIME[i] >= 0 && STOP_TIME[i] < 1) STOP_TIME[i] = -1 * ((rand() % (100/SPEED))*2); // nếu xe đang dừng tới 0 thì chuyển sang thời gian chạy
+		if (STOP_TIME[i] >= -1 && STOP_TIME[i] < 0) STOP_TIME[i] = 1 * ((rand() % (100/SPEED))); // nếu xe đang chạy tới -1 chuyển sang thời gian dừng
 
 		STOP_TIME[i] += (STOP_TIME[i] >= 0) ? -1 : 1; // nếu đang dừng (>=0) thì giảm để chuyển qua thời gian chạy
 														// ngược lại nếu đang chạy (<0) thì tăng lên để xe dừng
