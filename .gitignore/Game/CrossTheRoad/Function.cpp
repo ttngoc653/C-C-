@@ -59,14 +59,16 @@ int countPeopleFinished() {
 
 bool writeHistoryToFile(FILE *f)
 {
-	fprintf(f, "%d\n", countPeopleFinished());
+	fprintf(f, "%d\n", countPeopleFinished());	// xuất số lượng người đã về đích
 
-	for (PointPeoplePre *p = headPeoplePre; p != NULL; p = p->next)
+	for (PointPeoplePre *p = headPeoplePre; p != NULL; p = p->next)	// chạy từ người về đích cuối cùng cho tới người đầu tiên về đích
+																	// 
 	{
-		fprintf(f, "%d ", p->x);
+		fprintf(f, "%d ", p->x);				// xuất từng vị trí thuộc trục Ox ra file,
+												// không lưu trục Oy vì khi về đích thì Oy=1
 	}
 
-	return true;
+	return true; 
 }
 
 bool readHistoryFromFile(FILE *f) {

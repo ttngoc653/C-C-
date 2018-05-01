@@ -354,44 +354,45 @@ void MoveUp() {
 // 4.2
 void SaveGame(HANDLE t) {
 
-	SuspendThread(t);
+	SuspendThread(t); // cho tạm dừng game hiện tại
 
 	//fflush(stdin);
-	GotoXY(0, HEIGH_CONSOLE + 2);
+	GotoXY(0, HEIGH_CONSOLE + 2);		// đặt lại vị trí bắt đầu hiện dòng chữ
 	printf("Input file name to save game: ");
 
 	char file_name[64];
-	GotoXY(31, HEIGH_CONSOLE + 2);
-	gets_s(file_name, 64);
-	FILE *f = fopen(file_name, "wt");
+	GotoXY(31, HEIGH_CONSOLE + 2);		// đặt vị trí bắt đầu nhập tên tệp muốn lưu
+	gets_s(file_name, 64);				// nhận giá trị file_name 64 ký tự (nếu nhập quá 64 kì tự thì sẽ không nhận các ký tự sau ký tự 64) tới khi nhấp Enter
+	FILE *f = fopen(file_name, "wt");	// mở tệp ra để ghi dữ liệu vào tệp dưới dạng text
 	
 	// xuất vị trí hiện tại của người đang qua đường
 	fprintf(f, "%d %d ", Y.x, Y.y);
 
-	// xuất tốc độ đang chạy
+	// xuất tốc độ xe đang chạy
 	fprintf(f, "%d\n", SPEED);
 
 	// hàm xuất lịch sử người đã về đích
 	writeHistoryToFile(f);
 	
-	fprintf(f, "\n");
+	fprintf(f, "\n");					// xuất xuống dòng trong file
 
 	// xuất tất cả vị trí (trục Ox) các xe đang chạy
 	for (int i = 0; i < MAX_CAR; i++)
-		fprintf(f, "%d ", X[i][0].x - 1);
+		fprintf(f, "%d ", X[i][0].x - 1);	// khi lưu phải kéo các xe lại 1 bậc vì xe chạy trong khoảng [1; WIDTH_CONSOLE-1] 
+																			// nên phải kéo lại [0; WIDTH_CONSOLE-2]
 
-	fprintf(f, "\n");
+	fprintf(f, "\n"); // xuống dòng để phân cách vị trí xe khi lưu với thời gian bắt đầu dừng/chạy
 	
 	// xuất thời gian chạy/dừng của tất cả các xe
 	for (int i = 0; i < MAX_CAR; i++)
 		fprintf(f, "%d ", STOP_TIME[i]);
 
-	fclose(f);
+	fclose(f);							// đóng file lại để báo hiệu dừng ghi tệp
 	
-	GotoXY(0, HEIGH_CONSOLE + 3);
+	GotoXY(0, HEIGH_CONSOLE + 3);		// đặt lại vị trí bắt đầu xuất câu thông báo dưới ra màn hình
 	printf("Game saved!!! Input any key to play");
 
-	haveGARBAGE = true;
+	haveGARBAGE = true; // gán lại biến xóa toàn bộ màn hình console khi nhấn phím bất kỳ
 }
 
 bool LoadFile(HANDLE t) {
