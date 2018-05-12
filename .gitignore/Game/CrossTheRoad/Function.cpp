@@ -12,12 +12,9 @@ bool addPeopleFinish(int _x) {
 	p->x = _x;
 	p->next = NULL;
 
-	if (headPeoplePre == NULL) headPeoplePre = p;
-	else
-	{
-		p->next = headPeoplePre;
-		headPeoplePre = p;
-	}
+	if (headPeoplePre != NULL)		p->next = headPeoplePre;
+
+	headPeoplePre = p;
 
 	return true;
 }

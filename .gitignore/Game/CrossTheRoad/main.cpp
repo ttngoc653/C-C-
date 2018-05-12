@@ -3,6 +3,7 @@
 #include<thread>
 #include<conio.h>
 #include"Function.h"
+#include "main.h"
 
 using namespace std;
 //Buoc 1
@@ -107,11 +108,16 @@ void DrawBoard(int x, int y, int width, int height, int curPosX = 0, int curPosY
 void DrawCars(char* s)
 {
 	for (int i = 0; i < MAX_CAR; i++) {
+		if (Y.y == i + 2) {			
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), STATE == 1 ? 14 : 12);
+		}
 		for (int j = 0; j < MAX_CAR_LENGTH; j++)
 		{
 			GotoXY(X[i][j].x, X[i][j].y);
 			printf(".");
 		}
+
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 	}
 }
 
@@ -498,10 +504,44 @@ void LoadGame(HANDLE t = NULL) {
 }
 // end 4.2
 
+
+void MoveCarsWithought() {
+	DrawBoard(0, 0, WIDTH_CONSOLE, HEIGH_CONSOLE);
+	ProcessStopAndRun();
+	for (int i = 1; i < MAX_CAR; i += 2)
+	{
+		if (STOP_TIME[i] < 0 && Y.y != i + 2) {
+			cnt = 0;
+			do {
+				cnt++;
+				for (int j = 0; j < MAX_CAR_LENGTH - 1; j++) {
+					X[i][j] = X[i][j + 1];
+				}
+				X[i][MAX_CAR_LENGTH - 1].x + 1 == WIDTH_CONSOLE ? X[i][MAX_CAR_LENGTH - 1].x = 1 : X[i][MAX_CAR_LENGTH - 1].x++;
+				// Kiểm tra xem xe có đụng màn hình không
+			} while (cnt < SPEED);
+		}
+	}
+	for (int i = 0; i < MAX_CAR; i += 2)
+	{
+		if (STOP_TIME[i] < 0 && Y.y != i + 2) {
+			cnt = 0;
+			do {
+				cnt++;
+				for (int j = MAX_CAR_LENGTH - 1; j > 0; j--)
+				{
+					X[i][j] = X[i][j - 1];
+				}
+				X[i][0].x - 1 == 0 ? X[i][0].x = WIDTH_CONSOLE - 1 : X[i][0].x--; // Kiểm tra xem xe có đụng màn hình không 
+			} while (cnt < SPEED);
+		}
+	}
+}
+
 //Buoc 14
 void SubThread()
 {
-	while (1) {
+	while (true) {
 		if (STATE) //Nếu người vẫn còn sống    
 		{
 			switch (MOVING) //Kiểm tra biến moving 
@@ -528,9 +568,17 @@ void SubThread()
 				ProcessDead(); // Kiểm tra xe có đụng không 
 			}
 			if (Y.y == 1)
-				ProcessFinish(Y); // Kiểm tra xem về đích chưa 
-			Sleep(50);//Hàm ngủ theo tốc độ SPEED 
+				ProcessFinish(Y); // Kiểm tra xem về đích có đụng xe nào không?
 		}
+		else
+		{
+			EraseCars();
+			MoveCarsWithought();
+			DrawCars(".");
+			DrawSticker(Y, "Y", 12);
+		}
+
+		Sleep(50);//Hàm ngủ theo tốc độ SPEED 
 	}
 }
 
@@ -547,63 +595,67 @@ int MenuStart(){
 
 void main()
 {
+
 	int temp;
 	FixConsoleWindow();
 	srand((unsigned int)time(NULL));
 
-	while (1) {
+	// 4.5
+	if (MenuStart() == 'T') // nếu mới vào nhập từ t || T
+		LoadGame(); // vào game bằng dữ liệu từ file
+	else StartGame(); // còn không thì bắt đầu trò chơi với dữ liệu gốc mặc định
+					  // end 4.5
 
-		// 4.5
-		if (MenuStart() == 'T') // nếu mới vào nhập từ t || T
-			LoadGame(); // vào game bằng dữ liệu từ file
-		else StartGame(); // còn không thì bắt đầu trò chơi với dữ liệu gốc mặc định
-		// end 4.5
+	thread t1(SubThread);
 
-		thread t1(SubThread);
-
-		SuspendThread(t1.native_handle());
-		while (1)
+	SuspendThread(t1.native_handle());
+	while (true)
+	{
+		temp = toupper(getch());
+		if (STATE == 1)
 		{
-			temp = toupper(getch());
-			if (STATE == 1)
-			{
-				if (temp == 27 || temp == 'E') {
-					ExitGame(t1.native_handle());
-					break;
-				}
-				else if (temp == 'P') {
-					PauseGame(t1.native_handle());
-				}
-
-				// 4.2
-				else if (temp == 'L') {
-					STOP = TRUE;
-					SaveGame(t1.native_handle());
-					STOP = FALSE;
-				}
-				else if (temp == 'T') {
-					LoadGame(t1.native_handle());
-				}
-				// end 4.2
-
-				else {
-					ResumeThread((HANDLE)t1.native_handle());
-					haveGARBAGE = haveGARBAGE == true ? ClearConsole() : false;
-					if (temp == 'D' || temp == 'A' || temp == 'W' || temp == 'S')
-					{
-						MOVING = temp;
-					}
-				}
+			if (temp == 27 || temp == 'E') {
+				ExitGame(t1.native_handle());
+				break;
 			}
-			else
-			{
-				if (temp == 'Y')
-					StartGame();
-				else {
-					ExitGame(t1.native_handle());
-					break;
+			else if (temp == 'P') {
+				PauseGame(t1.native_handle());
+			}
+
+			// 4.2
+			else if (temp == 'L') {
+				STOP = TRUE;
+				SaveGame(t1.native_handle());
+				STOP = FALSE;
+			}
+			else if (temp == 'T') {
+				LoadGame(t1.native_handle());
+			}
+			// end 4.2
+
+			else {
+				ResumeThread((HANDLE)t1.native_handle());
+				haveGARBAGE = (haveGARBAGE == true) ? ClearConsole() : false;
+				if (temp == 'D' || temp == 'A' || temp == 'W' || temp == 'S')
+				{
+					MOVING = temp;
 				}
 			}
 		}
+		else
+		{
+			if (temp == 'Y')
+				StartGame();
+			else {
+				ExitGame(t1.native_handle());
+				break;
+			}
+		}
+	}
+
+	while (true) {
+		ClearConsole();
+		GotoXY(0, 2);
+		printf("Click the X button in the upper right corner of the screen to exit.\n			Thank you");
 	}
 }
