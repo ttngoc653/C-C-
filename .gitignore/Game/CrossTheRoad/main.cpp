@@ -657,5 +657,7 @@ void main()
 		ClearConsole();
 		GotoXY(0, 2);
 		printf("Click the X button in the upper right corner of the screen to exit.\n			Thank you");
+
+		Sleep(MAXINT);
 	}
 }
